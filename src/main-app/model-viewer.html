@@ -1,0 +1,120 @@
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
+
+<dom-module id="model-viewer">
+  <template>
+    <style>
+    :host{
+      display: none
+    }
+    :host([active]){
+      background: white;
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+      display: flex;
+      height: 350px;
+      width: 100%;
+    }
+    :host .wrapper-viewer{
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    :host .wrapper-params{
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      flex-wrap: wrap;
+    }
+    :host .wrapper-params .actions{
+      display: flex;
+      flex-direction: row-reverse;
+    }
+    :host .wrapper-params .params{
+      display: flex;
+      flex-direction: column;
+    }
+    .params-list{
+       list-style: none;
+       padding: 0;
+       margin: 0;
+    }
+    .params-list .param{
+       padding: 0;
+       margin: 0;
+    }
+    iron-image.model{
+      --iron-image-height:250px;
+      --iron-image-width:250px;
+    }
+    h1,h2,h3,h4,h5{
+      margin: 0;
+      padding: 0;
+    }
+    </style>
+    <div class="wrapper-viewer">
+          <iron-image
+            class="model"
+            src="[[model.image]]"
+          ></iron-image>
+    </div>
+    <div class="wrapper-params">
+          <div class="actions">
+            <paper-icon-button icon="close" on-tap="_dismissViewer"></paper-icon-button>
+          </div>
+          <div class="params">
+              <div><strong>Model name: </strong>{{model.model_name}}</div>
+              <div><strong>uid: </strong>{{model.uid}}</div>
+              <div>
+                <h3>Parameters</h3>
+                <ul class="params-list">
+                  <template is="dom-repeat" items="{{_toArray(model.params)}}">
+                    <li class="param"><strong>{{item.paramNumber}}: </strong>{{item.position}}</li>
+                  </template>
+                </ul>
+              </div>
+          </div>
+    </div>
+  </template>
+  <script>
+    Polymer({
+      is: 'model-viewer',
+      properties:{
+        model:{
+          type:Object,
+          value:function(){
+            return {};
+          },
+          notify:true
+        },
+        active:{
+          type: Boolean,
+          value:false,
+          reflectToAttribute: true
+        }
+      },
+      _dismissViewer:function(){
+        this.active = false;
+      },
+      _toArray:function(jsonObject){
+        if(jsonObject){
+          return Object.keys(jsonObject).map(function(key){
+              return {
+                  "paramNumber": key,
+                  "position": jsonObject[key]
+              }
+          });
+        }else {
+          return null;
+        }
+      },
+      openViewer:function(){
+        this.active = true;
+      }
+    })
+  </script>
+</dom-module>
