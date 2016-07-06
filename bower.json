@@ -5,7 +5,7 @@
   "dependencies": {
     "polymer": "Polymer/polymer#^1.4.0",
     "paper-drawer-panel": "PolymerElements/paper-drawer-panel#^1.0.9",
-    "slider-parent": "angelsalazar/slider-parent#^0.0.7",
+    "slider-parent": "angelsalazar/slider-parent#^0.0.8",
     "paper-spinner": "PolymerElements/paper-spinner#^1.2.0",
     "iron-image": "PolymerElements/iron-image#^1.2.3"
   },
