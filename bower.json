@@ -5,9 +5,10 @@
   "dependencies": {
     "polymer": "Polymer/polymer#^1.4.0",
     "paper-drawer-panel": "PolymerElements/paper-drawer-panel#^1.0.9",
-    "slider-parent": "angelsalazar/slider-parent#^0.0.8",
     "paper-spinner": "PolymerElements/paper-spinner#^1.2.0",
-    "iron-image": "PolymerElements/iron-image#^1.2.3"
+    "iron-image": "PolymerElements/iron-image#^1.2.3",
+    "slider-parent": "angelsalazar/slider-parent#^0.0.8",
+    "model-container": "angelsalazar/model-container#^0.0.1"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",

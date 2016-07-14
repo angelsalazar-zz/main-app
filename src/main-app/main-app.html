@@ -8,7 +8,9 @@
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
-<link rel="import" href="model-el.html">
+<link rel="import" href="../../bower_components/model-container/model-container.html">
+<!--
+<link rel="import" href="model-el.html"> -->
 <link rel="import" href="model-viewer.html">
 
 <dom-module id="main-app">
@@ -37,7 +39,6 @@
              left: 0;
              right: 0;
              display: flex;
-             flex-direction: column;
              align-items: center;
              justify-content: center;
              background: #fff;
@@ -56,6 +57,7 @@
            margin: 0;
            padding: 0;
          }
+
     </style>
        <iron-ajax
             auto
@@ -63,7 +65,7 @@
             handle-as="json"
             on-response="_handleResponse"
             on-error="_handleError"
-            debounce-duration="3000"
+            debounce-duration="1000"
             ></iron-ajax>
        <paper-drawer-panel id="panel">
            <paper-header-panel drawer>
@@ -84,7 +86,9 @@
                     <model-viewer id="viewer" model="{{currentModel}}"></model-viewer>
                     <div class="boxes-wrapper">
                       <template is="dom-repeat" items="{{models}}" as="model">
-                        <model-el model='{{model}}' on-tap="openModel"></model-el>
+                        <model-container model='{{model}}' id="{{model.uid}}"
+                                  on-tap="openModel"
+                                  ></model-container>
                       </template>
                     </div>
                 </div>
@@ -122,19 +126,22 @@
                   type:Array,
                   value:function(){
                       return [];
-                  }
+                  },
+                  notify:true
               },
               models:{
                   type: Array,
                   value: function(){
                     return [];
-                  }
+                  },
+                  notify:true
               },
               currentModel:{
                   type: Object,
                   value:function(){
                     return {};
-                  }
+                  },
+                  notify:true
               }
           },
           ready:function(){
@@ -164,10 +171,11 @@
           _handleError:function(e){
               console.log(e.detail.error);
           },
-          _toArray:function(jsonObject){
+          _toArray:function(jsonObject,uid){
             if(jsonObject){
               return Object.keys(jsonObject).map(function(key){
                   return {
+                      "uid": uid,
                       "paramNumber": key,
                       "value": jsonObject[key]
                   }
@@ -182,7 +190,8 @@
                   this.parametersCollection.push({collection:[]});
               }
               for(var k=0;k<models.length;k++){
-                  var jsonArray = this._toArray(models[k].params);
+                  var jsonArray = this._toArray(models[k].params,models[k].uid);
+                  //console.log(jsonArray)
                   for(var j=0;j<jsonArray.length;j++){
                       this.parametersCollection[j].collection.push(jsonArray[j]);
                   }
@@ -191,21 +200,31 @@
               this.isLoading = false;
           },
           openModel:function(e){
-            this.$.viewer.model = e.currentTarget.model;
+            //this.set('currentModel',e.currentTarget.model);
+            //this.$.viewer.model = e.currentTarget.model;
+            this.$.viewer.set('model',e.currentTarget.model);
+            // console.log(this.$.viewer.model);
             this.$.viewer.openViewer();
           },
-          closeModel:function(){
-            this.visible = true;
-          },
-          _findModelById(id){
-            for(var i=0;i<this.models.length;i++){
-              if(this.models[i].uid == id)
-                return this.models[i];
+          _addhightLightParams:function(e){
+            var _sliders = Polymer.dom(this.root).querySelectorAll('slider-parent');
+            for(var i=0;i<_sliders.length;i++){
+              _sliders[i].querySelector('slider-switch[uid="'+e.currentTarget.model.uid+'"]').hover = true;
             }
-            return null;
+          },
+          _removehightLightParams:function(e){
+            var _sliders = Polymer.dom(this.root).querySelectorAll('slider-parent');
+            for(var i=0;i<_sliders.length;i++){
+              _sliders[i].querySelector('slider-switch[uid="'+e.currentTarget.model.uid+'"]').hover = false;
+            }
           }
       });
       /*
+      <!-- <model-container model='{{model}}' id="{{model.uid}}"
+                on-tap="openModel"
+                on-mouseenter="_addhightLightParams"
+                on-mouseleave="_removehightLightParams"
+                ></model-container> -->
           value:function(){
                       return [
                           {collection:[{"position":10},{"position":30},{"position":50}]},
