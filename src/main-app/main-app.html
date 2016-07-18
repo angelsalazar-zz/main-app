@@ -9,9 +9,11 @@
 <link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../bower_components/model-container/model-container.html">
+<link rel="import" href="../../bower_components/model-viewer/model-viewer.html">
+
 <!--
 <link rel="import" href="model-el.html"> -->
-<link rel="import" href="model-viewer.html">
+<!-- <link rel="import" href="model-viewer.html"> -->
 
 <dom-module id="main-app">
    <template>
@@ -49,15 +51,37 @@
            padding: 10px;
            width: calc(100%-10px);
          }
+         .selected-boxes-wrapper{
+           display: flex;
+           flex-flow: row wrap;
+           justify-content: center
+         }
          .boxes-wrapper{
            display: flex;
            flex-wrap: wrap;
          }
-         h1,h2,h3,h4,h5{
+         /*.selectedModel{
+           display: flex;
+           padding: 10px;
+           margin: 5px;
+           background: white;
+         }
+         .selectedModel .model-features{
+           padding: 5px;
+         }
+         .selectedModel .model-features .action{
+           display: flex;
+           flex-direction: row-reverse;
+         }*/
+
+         /*h1,h2,h3,h4,h5{
            margin: 0;
            padding: 0;
          }
-
+         iron-image.model{
+           --iron-image-height:350px;
+           --iron-image-width:250px;
+         }*/
     </style>
        <iron-ajax
             auto
@@ -83,14 +107,20 @@
                     <div>Models</div>
                 </paper-toolbar>
                 <div class="content">
-                    <model-viewer id="viewer" model="{{currentModel}}"></model-viewer>
-                    <div class="boxes-wrapper">
-                      <template is="dom-repeat" items="{{models}}" as="model">
-                        <model-container model='{{model}}' id="{{model.uid}}"
-                                  on-tap="openModel"
-                                  ></model-container>
-                      </template>
-                    </div>
+                  <array-selector id="selector" items="{{models}}" selected="{{selected}}" multi toggle></array-selector>
+                  <div class="selected-boxes-wrapper">
+                    <template id="selectedModels" is="dom-repeat" items={{selected}}>
+                      <model-viewer item='{{item}}'></model-viewer>
+                    </template>
+                  </div>
+                  <div class="boxes-wrapper">
+                    <template id="models" is="dom-repeat" items="{{models}}" as="model">
+                      <model-container model='{{model}}'
+                                        id="{{model.uid}}"
+                                        on-mousedown="_toggleSelection"
+                                        ></model-container>
+                    </template>
+                  </div>
                 </div>
             </paper-header-panel>
         </paper-drawer-panel>
@@ -199,25 +229,14 @@
               this.ready = true;
               this.isLoading = false;
           },
-          openModel:function(e){
-            //this.set('currentModel',e.currentTarget.model);
-            //this.$.viewer.model = e.currentTarget.model;
-            this.$.viewer.set('model',e.currentTarget.model);
-            // console.log(this.$.viewer.model);
-            this.$.viewer.openViewer();
+          _toggleSelection:function(e){
+            var model = this.$.models.itemForElement(e.target);
+            this.$.selector.select(model);
           },
-          _addhightLightParams:function(e){
-            var _sliders = Polymer.dom(this.root).querySelectorAll('slider-parent');
-            for(var i=0;i<_sliders.length;i++){
-              _sliders[i].querySelector('slider-switch[uid="'+e.currentTarget.model.uid+'"]').hover = true;
-            }
-          },
-          _removehightLightParams:function(e){
-            var _sliders = Polymer.dom(this.root).querySelectorAll('slider-parent');
-            for(var i=0;i<_sliders.length;i++){
-              _sliders[i].querySelector('slider-switch[uid="'+e.currentTarget.model.uid+'"]').hover = false;
-            }
-          }
+          // _deselectModel:function(e){
+          //   var model = this.$.selectedModels.itemForElement(e.target);
+          //   this.$.selector.deselect(model);
+          // }
       });
       /*
       <!-- <model-container model='{{model}}' id="{{model.uid}}"

@@ -8,7 +8,8 @@
     "paper-spinner": "PolymerElements/paper-spinner#^1.2.0",
     "iron-image": "PolymerElements/iron-image#^1.2.3",
     "slider-parent": "angelsalazar/slider-parent#^0.0.9",
-    "model-container": "angelsalazar/model-container#^0.0.1"
+    "model-container": "angelsalazar/model-container#^0.0.1",
+    "model-viewer": "angelsalazar/model-viewer#^0.0.1"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
