@@ -1,0 +1,157 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/slider-parent/slider-parent.html">
+
+<link rel="import" href="draggable-behavior.html">
+<dom-module id="parameters-container">
+    <template>
+      <style>
+        :host{
+          display: flex;
+          flex-direction: column;
+          position: absolute;
+          background: white;
+          width: 300px;
+          z-index:999;
+          box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        }
+        :host[dragging]{
+          box-shadow: 0 4px 8px 0 #1565C0, 0 6px 20px 0 #1565C0;
+        }
+        .slider-parent{
+          padding: 15px 10px;
+        }
+      </style>
+      <template is="dom-if"  if="{{ready}}" >
+        <template is="dom-repeat"  items="{{parametersCollection}}">
+          <div class="slider-parent">
+            <slider-parent objects="{{item.collection}}"></slider-parent>
+          </div>
+        </template>
+      </template>
+    </template>
+    <script>
+      Polymer({
+        is:'parameters-container',
+        behaviors: [DraggableBehavior],
+        properties:{
+          models:{
+            type:Array
+          },
+          parametersCollection:{
+            type:Array,
+            value:function(){
+                return [];
+            },
+            notify:true
+          },
+          ready:{
+              type: Boolean,
+              value:false,
+              notify:true
+          }
+        },
+        observers:[
+          '_parametersCollectionChanged(parametersCollection.*)',
+          '_modelsPropertiesChanged(models.*)'
+        ],
+        _parametersCollectionChanged:function(cr){
+          if(cr.path.includes("value")){
+              var nameSubpath = cr.path.indexOf('.value');
+              var itempath = cr.path.substring(0, nameSubpath);
+              var item = this.get(itempath);
+              var i = this._getItemIndex(item)
+              this.set('params.'+item.paramNumber,item.value,this.models[i])
+              this.notifyPath('models.'+i+'.params.'+item.paramNumber);
+          }
+          if(cr.path.includes("selecting")){
+              var nameSubpath = cr.path.indexOf('.selecting');
+              var itempath = cr.path.substring(0, nameSubpath);
+              var item = this.get(itempath);
+              var i = this._getItemIndex(item)
+              this.set('selecting',item.selecting,this.models[i])
+              this.notifyPath('models.'+i+'.selecting');
+          }
+          // if(cr.path.includes("selected")){
+          //     var nameSubpath = cr.path.indexOf('.selected');
+          //     var itempath = cr.path.substring(0, nameSubpath);
+          //     var item = this.get(itempath);
+          //     var i = this._getItemIndex(item)
+          //     this.set('selected',item.selected,this.objects[i])
+          //     this.notifyPath('objects.'+i+'.selected');
+          // }
+
+        },
+        _modelsPropertiesChanged:function(cr){
+          if(cr.path.includes("selected")){
+              var nameSubpath = cr.path.indexOf('.selected');
+              var itempath = cr.path.substring(0, nameSubpath);
+              var item = this.get(itempath);
+              for(var i=0;i<this.parametersCollection.length;i++){
+                for(var j=0;j<this.parametersCollection[i].collection.length;j++){
+                  if(this.get('uid',this.parametersCollection[i].collection[j]) == item.uid){
+                    this.set('selected',item.selected,this.parametersCollection[i].collection[j])
+                    this.notifyPath('parametersCollection.'+i+'.collection.'+j+'.selected');
+                  }
+                }
+              }
+          }
+          if(cr.path.includes("selecting")){
+              var nameSubpath = cr.path.indexOf('.selecting');
+              var itempath = cr.path.substring(0, nameSubpath);
+              var item = this.get(itempath);
+              for(var i=0;i<this.parametersCollection.length;i++){
+                for(var j=0;j<this.parametersCollection[i].collection.length;j++){
+                  if(this.get('uid',this.parametersCollection[i].collection[j]) == item.uid){
+                    this.set('selecting',item.selecting,this.parametersCollection[i].collection[j])
+                    this.notifyPath('parametersCollection.'+i+'.collection.'+j+'.selecting');
+                  }
+                }
+              }
+          }
+        },
+        _toArray:function(jsonObject,uid){
+          if(jsonObject){
+            return Object.keys(jsonObject).map(function(key){
+                return {
+                    "uid": uid,
+                    "paramNumber": key,
+                    "value": jsonObject[key]
+                }
+            });
+          }else {
+            return null;
+          }
+        },
+        attributeChanged: function(models, type) {
+          console.log(this.localName + '#' + this.id + ' attribute ' + models +
+            ' was changed to ' + this.getAttribute(models));
+        },
+        attached: function() {
+          this._createSliders(this.models);
+        },
+        _createSliders:function(models){
+            var paramsLength = Object.keys(models[0].params).length;
+            for(var i=0;i<paramsLength;i++){
+                this.parametersCollection.push({collection:[]});
+            }
+            for(var k=0;k<models.length;k++){
+                var jsonArray = this._toArray(models[k].params,models[k].uid);
+                for(var j=0;j<jsonArray.length;j++){
+                    this.parametersCollection[j].collection.push(jsonArray[j]);
+                }
+            }
+            this.ready = true;
+        },
+        _getItemIndex(item){
+          var index;
+          for(var i=0;i<this.models.length;i++){
+            if(this.get('uid',this.models[i])==item.uid){
+              index = i;
+              break;
+            }
+          }
+          return index;
+        }
+      })
+    </script>
+</dom-module>

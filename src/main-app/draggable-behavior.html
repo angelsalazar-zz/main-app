@@ -1,0 +1,61 @@
+<script>
+      DraggableBehavior = {
+
+        properties: {
+          _startX:{
+            type:Number,
+            value:0,
+          },
+          _startY:{
+            type:Number,
+            value:0,
+          },
+          dragging:{
+            type:Boolean,
+            reflectToAttribute: true,
+            value:false
+          },
+          draggable:{
+            type:Boolean,
+            value:true
+          }
+        },
+        listeners: {
+          mousedown: '_handleDown'
+        },
+        _handleDown:function(e){
+          e.preventDefault();
+          this._startX = e.pageX;
+          this._startY = e.pageY;
+          this.listen(this, 'mousemove', '_handleMove');
+          this.listen(this, 'mouseup', '_handleUp');
+        },
+        _handleMove:function(e){
+          e.preventDefault();
+          var deltaX = e.pageX - this._startX;
+          var deltaY =  e.pageY - this._startY;
+          if(!this.dragging){
+            this.set('dragging',true);
+          }
+          console.log(this.dragging)
+          var newX = e.currentTarget.getBoundingClientRect().left + deltaX;
+          var newY = e.currentTarget.getBoundingClientRect().top + deltaY;
+          this._updateCssPosition(e,newX,newY);
+          this._startX = e.pageX;
+          this._startY = e.pageY;
+        },
+        _handleUp:function(e){
+          e.preventDefault();
+          if(this.dragging){
+            this.set('dragging',false);
+          }
+          this.unlisten(this, 'mousemove', '_handleMove');
+          this.unlisten(this, 'mouseup', '_handleUp');
+        },
+        _updateCssPosition:function(e,leftValue,topValue){
+          e.currentTarget.style.left = leftValue+'px';
+          e.currentTarget.style.top =  topValue+'px';
+        }
+
+      };
+    </script>
