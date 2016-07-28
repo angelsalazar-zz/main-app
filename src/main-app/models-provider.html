@@ -24,6 +24,7 @@
          last-response="{{models}}"
          on-error="_handleError"
          loading="{{isLoading}}"
+         debounce-duration="2000"
          ></iron-ajax>
     <div class="overlay" hidden$="{{!isLoading}}">
         <paper-spinner active="true"></paper-spinner>
