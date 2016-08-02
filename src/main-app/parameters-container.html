@@ -5,6 +5,7 @@
 <dom-module id="parameters-container">
     <template>
       <style>
+        /* parameters-container style */
         :host{
           display: flex;
           flex-direction: column;
@@ -14,6 +15,7 @@
           z-index:999;
           box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
         }
+        /* when dragging change shadow color */
         :host[dragging]{
           box-shadow: 0 4px 8px 0 #1565C0, 0 6px 20px 0 #1565C0;
         }
@@ -31,8 +33,15 @@
     </template>
     <script>
       Polymer({
+        // Comoponent name
         is:'parameters-container',
+        // Behaviors array - DraggableBehavior allows dragging functionality to the element
         behaviors: [DraggableBehavior],
+        /* Properties
+        * models: Array - current models on main-app
+        * parametersCollection - Array models' parameters object formatted to create the slider-parent Comoponents
+        * ready: Boolean - allows the slider-parent rendering, once parametersCollection Array is filled
+        */
         properties:{
           models:{
             type:Array
@@ -46,27 +55,33 @@
           },
           ready:{
               type: Boolean,
-              value:false,
-              notify:true
+              value:false
           }
         },
+        // observers: Array
+        /*
+        * _parametersCollectionChanged notifies changes on the models parameters object
+        * _modelsPropertiesChanged notifies models status changes to parametersCollection (selecting and selected)
+        */
         observers:[
           '_parametersCollectionChanged(parametersCollection.*)',
           '_modelsPropertiesChanged(models.*)'
         ],
+        /**
+        * _parametersCollectionChanged
+        * @param {string} cr //changed record path
+        */
         _parametersCollectionChanged:function(cr){
+          //if the the changed property is value, then notifies to its model
           if(cr.path.includes("value")){
-              var nameSubpath = cr.path.indexOf('.value');
-              var itempath = cr.path.substring(0, nameSubpath);
-              var item = this.get(itempath);
+              var item = this._getItemByChangingProperty(cr,'value');
               var i = this._getItemIndex(item)
               this.set('params.'+item.paramNumber,item.value,this.models[i])
               this.notifyPath('models.'+i+'.params.'+item.paramNumber);
           }
+          //if the the changed property is selecting, then notifies to its model
           if(cr.path.includes("selecting")){
-              var nameSubpath = cr.path.indexOf('.selecting');
-              var itempath = cr.path.substring(0, nameSubpath);
-              var item = this.get(itempath);
+              var item = this._getItemByChangingProperty(cr,'selecting');
               var i = this._getItemIndex(item)
               this.set('selecting',item.selecting,this.models[i])
               this.notifyPath('models.'+i+'.selecting');
@@ -81,34 +96,41 @@
           // }
 
         },
+        /**
+        * _modelsPropertiesChanged
+        * @param {string} cr //changing record path
+        */
         _modelsPropertiesChanged:function(cr){
+          //if the the changed property is selected, then notifies to its corresponding parametersCollection item
           if(cr.path.includes("selected")){
-              var nameSubpath = cr.path.indexOf('.selected');
-              var itempath = cr.path.substring(0, nameSubpath);
-              var item = this.get(itempath);
-              for(var i=0;i<this.parametersCollection.length;i++){
-                for(var j=0;j<this.parametersCollection[i].collection.length;j++){
-                  if(this.get('uid',this.parametersCollection[i].collection[j]) == item.uid){
-                    this.set('selected',item.selected,this.parametersCollection[i].collection[j])
-                    this.notifyPath('parametersCollection.'+i+'.collection.'+j+'.selected');
-                  }
+            var item = this._getItemByChangingProperty(cr,'selected');
+            for(var i=0;i<this.parametersCollection.length;i++){
+              for(var j=0;j<this.parametersCollection[i].collection.length;j++){
+                if(this.get('uid',this.parametersCollection[i].collection[j]) == item.uid){
+                  this.set('selected',item.selected,this.parametersCollection[i].collection[j])
+                  this.notifyPath('parametersCollection.'+i+'.collection.'+j+'.selected');
                 }
               }
+            }
           }
+          //if the the changed property is selecting, then notifies to its corresponding parametersCollection item
           if(cr.path.includes("selecting")){
-              var nameSubpath = cr.path.indexOf('.selecting');
-              var itempath = cr.path.substring(0, nameSubpath);
-              var item = this.get(itempath);
-              for(var i=0;i<this.parametersCollection.length;i++){
-                for(var j=0;j<this.parametersCollection[i].collection.length;j++){
-                  if(this.get('uid',this.parametersCollection[i].collection[j]) == item.uid){
-                    this.set('selecting',item.selecting,this.parametersCollection[i].collection[j])
-                    this.notifyPath('parametersCollection.'+i+'.collection.'+j+'.selecting');
-                  }
+            var item = this._getItemByChangingProperty(cr,'selecting');
+            for(var i=0;i<this.parametersCollection.length;i++){
+              for(var j=0;j<this.parametersCollection[i].collection.length;j++){
+                if(this.get('uid',this.parametersCollection[i].collection[j]) == item.uid){
+                  this.set('selecting',item.selecting,this.parametersCollection[i].collection[j])
+                  this.notifyPath('parametersCollection.'+i+'.collection.'+j+'.selecting');
                 }
               }
+            }
           }
         },
+        /**
+        * _toArray turns a JSON object into an Array and adds the model uid to each new Item in the array
+        * @param {Object} jsonObject
+        * @param {string} uid
+        */
         _toArray:function(jsonObject,uid){
           if(jsonObject){
             return Object.keys(jsonObject).map(function(key){
@@ -122,13 +144,15 @@
             return null;
           }
         },
-        attributeChanged: function(models, type) {
-          console.log(this.localName + '#' + this.id + ' attribute ' + models +
-            ' was changed to ' + this.getAttribute(models));
-        },
+        /**
+        * attached create the sliders when parameters-container is attached to the main-app
+        */
         attached: function() {
           this._createSliders(this.models);
         },
+        /**
+        * _createSliders fills the parametersCollection with the models' parameters
+        */
         _createSliders:function(models){
             var paramsLength = Object.keys(models[0].params).length;
             for(var i=0;i<paramsLength;i++){
@@ -142,7 +166,11 @@
             }
             this.ready = true;
         },
-        _getItemIndex(item){
+        /**
+        * _getItemIndex gets the item index the belongs to the models arrays
+        * @param {Object} item
+        */
+        _getItemIndex:function(item){
           var index;
           for(var i=0;i<this.models.length;i++){
             if(this.get('uid',this.models[i])==item.uid){
@@ -151,6 +179,16 @@
             }
           }
           return index;
+        },
+        /**
+        * _getItemByChangingProperty gets the mutated Item
+        * @param {String} cr
+        * @param {String} property
+        */
+        _getItemByChangingProperty:function(cr,property){
+          var nameSubpath = cr.path.indexOf('.'+property);
+          var itempath = cr.path.substring(0, nameSubpath);
+          return this.get(itempath);
         }
       })
     </script>

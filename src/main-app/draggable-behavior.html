@@ -1,6 +1,12 @@
 <script>
       DraggableBehavior = {
-
+        //properties
+        /*
+        * _startX Number - stores the X coordinate
+        * _startY Number - stores the Y coordinate
+        * dragging Boolean - set to true when the component is dragged
+        * draggable boolean - allows the component to be dragged
+        */
         properties: {
           _startX:{
             type:Number,
@@ -20,38 +26,61 @@
             value:true
           }
         },
+        // listeners
+        /*
+        * mousedown fired when mouse is down
+        */
         listeners: {
           mousedown: '_handleDown'
         },
+        /**
+        * _handleDown - starts the drag funcionality
+        * @param {event} e
+        */
         _handleDown:function(e){
           e.preventDefault();
-          this._startX = e.pageX;
+          this._startX = e.pageX;                                               //Store current position
           this._startY = e.pageY;
-          this.listen(this, 'mousemove', '_handleMove');
+          this.listen(this, 'mousemove', '_handleMove');                        //Enables mousemove and up events
           this.listen(this, 'mouseup', '_handleUp');
         },
+        /**
+        * _handleMove - moves the dragged component
+        * @param {event} e
+        */
         _handleMove:function(e){
           e.preventDefault();
-          var deltaX = e.pageX - this._startX;
+          var deltaX = e.pageX - this._startX;                                  //compute offset between current position and starting position
           var deltaY =  e.pageY - this._startY;
+          //if not dragging, then set dragging true
           if(!this.dragging){
             this.set('dragging',true);
           }
-          console.log(this.dragging)
-          var newX = e.currentTarget.getBoundingClientRect().left + deltaX;
+          var newX = e.currentTarget.getBoundingClientRect().left + deltaX;     //computing new position
           var newY = e.currentTarget.getBoundingClientRect().top + deltaY;
-          this._updateCssPosition(e,newX,newY);
-          this._startX = e.pageX;
+          this._updateCssPosition(e,newX,newY);                                 //Update position
+          this._startX = e.pageX;                                               //Set current position as starting position
           this._startY = e.pageY;
         },
+        /**
+        * _handleUp - Ends the drag
+        * @param {event} e
+        */
         _handleUp:function(e){
           e.preventDefault();
+          //if dragging, then set dragging to false
           if(this.dragging){
             this.set('dragging',false);
           }
-          this.unlisten(this, 'mousemove', '_handleMove');
+          this.unlisten(this, 'mousemove', '_handleMove');                      //disable mousemove and mouseup events
           this.unlisten(this, 'mouseup', '_handleUp');
         },
+        /**
+        * _updateCssPosition - Updates the left and top css properties
+        * @param {event} e
+        * @param {Number} leftValue
+        * @param {Number} topValue
+        */
         _updateCssPosition:function(e,leftValue,topValue){
           e.currentTarget.style.left = leftValue+'px';
           e.currentTarget.style.top =  topValue+'px';
