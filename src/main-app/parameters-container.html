@@ -1,7 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/slider-parent/slider-parent.html">
 
-<link rel="import" href="draggable-behavior.html">
+<!-- <link rel="import" href="draggable-behavior.html"> -->
 <dom-module id="parameters-container">
     <template>
       <style>
@@ -10,7 +10,7 @@
           display: flex;
           flex-direction: column;
           position: absolute;
-          background: white;
+          /*background: white;*/
           width: 300px;
           z-index:999;
           box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
@@ -36,7 +36,7 @@
         // Comoponent name
         is:'parameters-container',
         // Behaviors array - DraggableBehavior allows dragging functionality to the element
-        behaviors: [DraggableBehavior],
+        // behaviors: [DraggableBehavior],
         /* Properties
         * models: Array - current models on main-app
         * parametersCollection - Array models' parameters object formatted to create the slider-parent Comoponents
@@ -52,6 +52,10 @@
                 return [];
             },
             notify:true
+          },
+          _sliderWrapperHeight:{
+            type:Number,
+            value:55
           },
           ready:{
               type: Boolean,
@@ -86,14 +90,12 @@
               this.set('selecting',item.selecting,this.models[i])
               this.notifyPath('models.'+i+'.selecting');
           }
-          // if(cr.path.includes("selected")){
-          //     var nameSubpath = cr.path.indexOf('.selected');
-          //     var itempath = cr.path.substring(0, nameSubpath);
-          //     var item = this.get(itempath);
-          //     var i = this._getItemIndex(item)
-          //     this.set('selected',item.selected,this.objects[i])
-          //     this.notifyPath('objects.'+i+'.selected');
-          // }
+          if(cr.path.includes("selected")){
+              var item = this._getItemByChangingProperty(cr,'selected');
+              var i = this._getItemIndex(item)
+              this.set('selected',item.selected,this.models[i])
+              this.notifyPath('models.'+i+'.selected');
+          }
 
         },
         /**
@@ -165,6 +167,7 @@
                 }
             }
             this.ready = true;
+            this.fire('set-height',{height:(this._sliderWrapperHeight*paramsLength)});
         },
         /**
         * _getItemIndex gets the item index the belongs to the models arrays

@@ -2,7 +2,7 @@
 <link rel="import" href="../../bower_components/selectable-zone/selectable-zone.html">
 
 <link rel="import" href="models-provider.html">
-<link rel="import" href="parameters-container.html">
+<link rel="import" href="parameters-panel.html">
 <link rel="import" href="selected-thumbnails.html">
 
 
@@ -39,7 +39,8 @@
       <!-- Content -->
       <div class="content">
         <template is="dom-if" if="{{models}}">
-          <parameters-container models="{{models}}"></parameters-container>
+          <parameters-panel models="{{models}}"></parameters-panel>
+          <!-- <parameters-container models="{{models}}"></parameters-container> -->
         </template>
         <selected-thumbnails models="{{models}}"></selected-thumbnails>
         <selectable-zone models="{{models}}"></selectable-zone>

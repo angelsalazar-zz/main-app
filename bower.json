@@ -6,7 +6,7 @@
     "polymer": "Polymer/polymer#^1.4.0",
     "paper-spinner": "PolymerElements/paper-spinner#^1.2.0",
     "iron-image": "PolymerElements/iron-image#^1.2.3",
-    "slider-parent": "angelsalazar/slider-parent#^1.0.1",
+    "slider-parent": "angelsalazar/slider-parent#^1.0.2",
     "model-viewer": "angelsalazar/model-viewer#^0.0.3",
     "selectable-zone": "angelsalazar/selectable-zone#^0.0.3"
   },
